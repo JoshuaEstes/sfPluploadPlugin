@@ -14,6 +14,32 @@ class sfWidgetFormPlupload extends sfWidgetForm
 {
 
   /**
+   * 
+   * @see http://www.plupload.com/documentation.php
+   * @param array $options
+   * @param array $attributes
+   */
+  protected function configure($options = array(), $attributes = array())
+  {
+    $this->addOption('runtimes', 'gears,silverlight,browserplus,html5,flash');
+    $this->addOption('url','/sfPlupload/upload');
+    $this->addOption('max_file_size', '10mb');
+    $this->addOption('flash_swf_url','/sfPluploadPlugin/plupload.flash.swf');
+    $this->addOption('silverlight_xap_url','/sfPluploadPlugin/plupload.silverlight.xap');
+    $this->addOption('chunk_size');
+    $this->addOption('unique_names',true);
+    $this->addOption('resize');
+    $this->addOption('filters');
+    $this->addOption('browse_button');
+    $this->addOption('drop_element');
+    $this->addOption('container');
+    $this->addOption('multipart');
+    $this->addOption('multipart_params');
+    $this->addOption('required_features');
+    $this->addOption('headers');
+  }
+
+  /**
    *
    * @param string $name
    * @param string $value
@@ -22,17 +48,52 @@ class sfWidgetFormPlupload extends sfWidgetForm
    */
   public function render($name, $value = null, $attributes = array(), $errors = array())
   {
+    $pluploadOptions = array();
+    $pluploadOptions[] = sprintf('runtimes: "%s"',$this->getOption('runtimes'));
+    $pluploadOptions[] = sprintf('url: "%s"',$this->getOption('url'));
+    $pluploadOptions[] = sprintf('max_file_size: "%s"',$this->getOption('max_file_size'));
+    $pluploadOptions[] = sprintf('flash_swf_url: "%s"',$this->getOption('flash_swf_url'));
+    $pluploadOptions[] = sprintf('silverlight_xap_url: "%s"',$this->getOption('silverlight_xap_url'));
+
+    if ($this->getOption('chunk_size'))
+      $pluploadOptions[] = sprintf('chunk_size: "%s"',$this->getOption('chunk_size'));
+
+    if ($this->getOption('unique_names'))
+      $pluploadOptions[] = sprintf('unique_names: true');
+
+    if ($this->getOption('resize'))
+      $pluploadOptions[] = sprintf('resize: true');
+
+    if ($this->getOption('filters'))
+      $pluploadOptions[] = sprintf('filters: "%s"',$this->getOption('filters'));
+
+    if ($this->getOption('browse_button'))
+      $pluploadOptions[] = sprintf('browse_button: "%s"',$this->getOption('browse_button'));
+
+    if ($this->getOption('drop_element'))
+      $pluploadOptions[] = sprintf('drop_element: "%s"',$this->getOption('drop_element'));
+
+    if ($this->getOption('container'))
+      $pluploadOptions[] = sprintf('container: "%s"',$this->getOption('container'));
+
+    if ($this->getOption('multipart'))
+      $pluploadOptions[] = sprintf('multipart: "%s"',$this->getOption('multipart'));
+
+    if ($this->getOption('multipart_params'))
+      $pluploadOptions[] = sprintf('multipart_params: "%s"',$this->getOption('multipart_params'));
+
+    if ($this->getOption('required_features'))
+      $pluploadOptions[] = sprintf('required_features: "%s"',$this->getOption('required_features'));
+
+    if ($this->getOption('headers'))
+      $pluploadOptions[] = sprintf('headers: "%s"',$this->getOption('headers'));
+
+    $pluploadOptions = "{\n".implode(",\n",$pluploadOptions)."\n}";
+
     $template = <<<EOF
 <script type="text/javascript">
   $(function(){
-    $('#uploader').pluploadQueue({
-      runtimes: 'gears,flash,silverlight,browserplus,html5',
-      url: '/sfPlupload/upload',
-      max_file_size: '300mb',
-      chunk_size: '1mb',
-      flash_swf_url: '/sfPluploadPlugin/plupload.flash.swf',
-      silverlight_xap_url : '/sfPluploadPlugin/plupload.silverlight.xap'
-    });
+    $('#uploader').pluploadQueue(%pluploadOptions%);
     $('form').submit(function(e){
       var uploader = $('#uploader').pluploadQueue();
       if (uploader.files.length > 0){
@@ -53,7 +114,9 @@ class sfWidgetFormPlupload extends sfWidgetForm
 </script>
 <div id="uploader"><p>You browser doesn't have Flash, Silverlight, Gears, BrowserPlus or HTML5 support.</p></div>
 EOF;
-    return $template;
+    return strtr($template,array(
+      '%pluploadOptions%' => $pluploadOptions
+    ));
   }
 
   public function getStylesheets()
