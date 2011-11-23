@@ -27,7 +27,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
   $(function(){
     $('#uploader').pluploadQueue({
       runtimes: 'gears,flash,silverlight,browserplus,html5',
-      url: 'upload.php',
+      url: '/sfPlupload/upload',
       max_file_size: '300mb',
       chunk_size: '1mb',
       flash_swf_url: '/sfPluploadPlugin/plupload.flash.swf',

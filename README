@@ -1,0 +1,16 @@
+sfPluploadPlugin
+================
+
+Allows you to use plupload with symfony. See http://www.plupload.com/ for info
+on Plupload.
+
+Plupload version included: 1.5.1.1
+
+Installation
+------------
+
+    # settings.yml
+    all:
+      .settings:
+        enabled_modules:
+          - sfPlupload
