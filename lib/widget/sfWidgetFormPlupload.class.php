@@ -37,6 +37,8 @@ class sfWidgetFormPlupload extends sfWidgetForm
     $this->addOption('multipart_params');
     $this->addOption('required_features');
     $this->addOption('headers');
+    $this->addOption('min_files',1);
+    $this->addOption('max_files',1);
   }
 
   /**
@@ -48,6 +50,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
    */
   public function render($name, $value = null, $attributes = array(), $errors = array())
   {
+//    die(var_dump($name,$value,$attributes,$errors));
     $pluploadOptions = array();
     $pluploadOptions[] = sprintf('runtimes: "%s"',$this->getOption('runtimes'));
     $pluploadOptions[] = sprintf('url: "%s"',$this->getOption('url'));
@@ -88,12 +91,21 @@ class sfWidgetFormPlupload extends sfWidgetForm
     if ($this->getOption('headers'))
       $pluploadOptions[] = sprintf('headers: "%s"',$this->getOption('headers'));
 
-    $pluploadOptions = "{\n".implode(",\n",$pluploadOptions)."\n}";
+    $pluploadOptions = implode(",\n",$pluploadOptions);
 
     $template = <<<EOF
 <script type="text/javascript">
   $(function(){
-    $('#uploader').pluploadQueue(%pluploadOptions%);
+    $('#uploader').pluploadQueue({
+      %pluploadOptions%,
+      init: {
+        FilesAdded: function(uploader, files){
+          var ext = files[0].name.split('.').reverse();
+          ext = ext[0];
+          $('#%id%').val(files[0].id + '.' + ext);
+        }
+      }
+    });
     $('form').submit(function(e){
       var uploader = $('#uploader').pluploadQueue();
       if (uploader.files.length > 0){
@@ -113,9 +125,13 @@ class sfWidgetFormPlupload extends sfWidgetForm
   });
 </script>
 <div id="uploader"><p>You browser doesn't have Flash, Silverlight, Gears, BrowserPlus or HTML5 support.</p></div>
+<input type="hidden" name="%name%" value="%value%" id="%id%" />
 EOF;
     return strtr($template,array(
-      '%pluploadOptions%' => $pluploadOptions
+      '%pluploadOptions%' => $pluploadOptions,
+      '%name%' => $name,
+      '%id%' => $this->generateId($name),
+      '%value%' => $value,
     ));
   }
 
