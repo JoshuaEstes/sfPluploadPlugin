@@ -116,7 +116,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
         });
         uploader.start();
       }
-      else
+      elseif(!$('#%id%').val())
       {
         alert('You must upload at least one file');
       }
