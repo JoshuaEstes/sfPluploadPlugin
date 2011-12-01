@@ -14,6 +14,24 @@ class sfWidgetFormPlupload extends sfWidgetForm
 {
 
   /**
+   * Available options:
+   * 
+   *   * runtimes
+   *   * url
+   *   * max_file_size
+   *   * flash_swf_url
+   *   * silverlight_xap_url
+   *   * chunk_size
+   *   * unique_names
+   *   * resize
+   *   * filters
+   *   * browse_button
+   *   * drop_element
+   *   * container
+   *   * multipart
+   *   * multipart_params
+   *   * headers
+   *   * max_file_count
    * 
    * @see http://www.plupload.com/documentation.php
    * @param array $options
@@ -21,13 +39,14 @@ class sfWidgetFormPlupload extends sfWidgetForm
    */
   protected function configure($options = array(), $attributes = array())
   {
+    $this->addOption('max_file_count',1);
     $this->addOption('runtimes', 'gears,silverlight,browserplus,html5,flash');
     $this->addOption('url','/sfPlupload/upload');
     $this->addOption('max_file_size', '10mb');
     $this->addOption('flash_swf_url','/sfPluploadPlugin/plupload.flash.swf');
     $this->addOption('silverlight_xap_url','/sfPluploadPlugin/plupload.silverlight.xap');
-    $this->addOption('chunk_size');
     $this->addOption('unique_names',true);
+    $this->addOption('chunk_size');
     $this->addOption('resize');
     $this->addOption('filters');
     $this->addOption('browse_button');
@@ -37,8 +56,6 @@ class sfWidgetFormPlupload extends sfWidgetForm
     $this->addOption('multipart_params');
     $this->addOption('required_features');
     $this->addOption('headers');
-    $this->addOption('min_files',1);
-    $this->addOption('max_files',1);
   }
 
   /**
@@ -100,6 +117,12 @@ class sfWidgetFormPlupload extends sfWidgetForm
       %pluploadOptions%,
       init: {
         FilesAdded: function(uploader, files){
+          if (uploader.files.length > %max_file_count%)
+          {
+            uploader.removeFile(files[0]);
+            alert('You can only upload a max of %max_file_count% files');
+            return;
+          }
           var ext = files[0].name.split('.').reverse();
           ext = ext[0];
           $('#%id%').val(files[0].id + '.' + ext);
@@ -132,6 +155,7 @@ EOF;
       '%name%' => $name,
       '%id%' => $this->generateId($name),
       '%value%' => $value,
+      '%max_file_count%' => $this->getOption('max_file_count'),
     ));
   }
 
