@@ -15,7 +15,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
 
   /**
    * Available options:
-   * 
+   *
    *   * runtimes
    *   * url
    *   * max_file_size
@@ -32,7 +32,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
    *   * multipart_params
    *   * headers
    *   * max_file_count
-   * 
+   *
    * @see http://www.plupload.com/documentation.php
    * @param array $options
    * @param array $attributes
@@ -58,6 +58,57 @@ class sfWidgetFormPlupload extends sfWidgetForm
     $this->addOption('headers');
   }
 
+  /**
+   * Array with runtime names to be shown
+   *
+   * @var array
+   */
+  protected $runtimes = array(
+    'gears' => 'Gears',
+    'html5' => 'HTML5',
+    'flash' => 'Flash',
+    'silverlight' => 'Silverlight',
+    'browserplus' => 'BrowserPlus'
+  );
+
+  /**
+   * Returns string for errormessage if no runtime is working in browser
+   *
+   * @return string
+   */
+  protected function getUsedRuntimes($runtimes)
+  {
+    $runtimes = explode(',',$runtimes);
+    foreach($runtimes as $key => $value) {
+      $runtimes[$key] = strtolower(trim($value));
+    }
+
+    $runtimenames = array();
+    foreach ($runtimes as $runtime)
+    {
+      if (isset($this->runtimes[$runtime]))
+      {
+        $runtimenames[] = $this->runtimes[$runtime];
+      }
+      else
+      {
+        $runtimenames[] = $runtime;
+      }
+    }
+    $usedRuntimes = '';
+    if (count($runtimenames) == 1 || count($runtimenames) == 2)
+    {
+      $usedRuntimes = implode(' or ', $runtimenames);
+    }
+    elseif (count($runtimenames) > 2)
+    {
+
+      $usedRuntimes = implode(', ', array_slice($runtimenames, 0, -1)).' or '.$runtimenames[count($runtimenames)-1];
+    }
+    return $usedRuntimes;
+  }
+
+  // Flash, Silverlight, Gears, BrowserPlus or HTML5
   /**
    *
    * @param string $name
@@ -147,7 +198,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
     });
   });
 </script>
-<div id="uploader"><p>You browser doesn't have Flash, Silverlight, Gears, BrowserPlus or HTML5 support.</p></div>
+<div id="uploader"><p>You browser doesn't have %used_runtimes% support.</p></div>
 <input type="hidden" name="%name%" value="%value%" id="%id%" />
 EOF;
     return strtr($template,array(
@@ -155,6 +206,7 @@ EOF;
       '%name%' => $name,
       '%id%' => $this->generateId($name),
       '%value%' => $value,
+      '%used_runtimes%' => $this->getUsedRuntimes($this->getOption('runtimes')),
       '%max_file_count%' => $this->getOption('max_file_count'),
     ));
   }
