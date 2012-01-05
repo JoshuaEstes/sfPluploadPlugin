@@ -100,7 +100,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
       $pluploadOptions[] = sprintf('multipart: "%s"',$this->getOption('multipart'));
 
     if ($this->getOption('multipart_params'))
-      $pluploadOptions[] = sprintf('multipart_params: "%s"',$this->getOption('multipart_params'));
+      $pluploadOptions[] = sprintf('multipart_params: %s',$this->getOption('multipart_params'));
 
     if ($this->getOption('required_features'))
       $pluploadOptions[] = sprintf('required_features: "%s"',$this->getOption('required_features'));
