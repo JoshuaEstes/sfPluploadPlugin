@@ -14,3 +14,11 @@ Installation
       .settings:
         enabled_modules:
           - sfPlupload
+
+Deactivating autoregistration of route
+--------------------------------------
+
+    # app.yml
+    all:
+    sfPluploadPlugin:
+        register_routes: false

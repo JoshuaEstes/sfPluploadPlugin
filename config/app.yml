@@ -1,0 +1,3 @@
+all:
+  sfPluploadPlugin:
+    register_routes: true
