@@ -20,5 +20,14 @@ Deactivating autoregistration of route
 
     # app.yml
     all:
-    sfPluploadPlugin:
+      sfPluploadPlugin:
         register_routes: false
+
+
+You will then need to create a route in your routing.yml file like so:
+
+    # routing.yml
+    sf_plupload_upload:
+      url: /sfPlupload/upload
+      param: { module: YourModule, action: YourAction }
+
