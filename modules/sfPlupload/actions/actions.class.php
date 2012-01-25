@@ -17,9 +17,7 @@ class sfPluploadActions extends sfActions
    * @param sfWebRequest $request
    */
   public function executeUpload(sfWebRequest $request)
-  {
-    $this->setTemplate(false);
-    
+  { 
     set_time_limit(15 * 60);
 
     $targetDir = sfConfig::get('sf_upload_dir');
@@ -64,7 +62,7 @@ class sfPluploadActions extends sfActions
     {
       if (isset($files['error']) && $files['error'])
       {
-        echo sprintf('{"jsonrpc": "2.0", "error" : { "message": "%s" }}',$files['error']);
+        return $this->renderText(sprintf('{"jsonrpc": "2.0", "error" : { "message": "%s" }}',$files['error']));
       }
       if(isset($files['tmp_name']) && is_uploaded_file($files['tmp_name']))
       {
@@ -84,7 +82,7 @@ class sfPluploadActions extends sfActions
           }
           else
           {
-            echo '{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}';
+            return $this->renderText('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
           }
           fclose($in);
           fclose($out);
@@ -92,12 +90,12 @@ class sfPluploadActions extends sfActions
         }
         else
         {
-          echo '{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}';
+          return $this->renderText('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
         }
       }
       else
       {
-        echo '{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}';
+        return $this->renderText('{"jsonrpc" : "2.0", "error" : {"code": 103, "message": "Failed to move uploaded file."}, "id" : "id"}');
       }
     }
     else
@@ -116,7 +114,7 @@ class sfPluploadActions extends sfActions
         }
         else
         {
-          echo '{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}';
+          return $this->renderText('{"jsonrpc" : "2.0", "error" : {"code": 101, "message": "Failed to open input stream."}, "id" : "id"}');
         }
 
         fclose($in);
@@ -124,18 +122,16 @@ class sfPluploadActions extends sfActions
       }
       else
       {
-        echo '{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}';
+        return $this->renderText('{"jsonrpc" : "2.0", "error" : {"code": 102, "message": "Failed to open output stream."}, "id" : "id"}');
       }
     }
 
     if ($chunks == ($chunk + 1))
     {
-      echo '{"jsonrpc" : "2.0", "result" : "complete", "id" : "id"}';
+      return $this->renderText('{"jsonrpc" : "2.0", "result" : "complete", "id" : "id"}');
     }
 
-    echo '{"jsonrpc" : "2.0", "result" : null, "id" : "id"}';
-    
-    return sfView::NONE;
+    return $this->renderText('{"jsonrpc" : "2.0", "result" : null, "id" : "id"}');
   }
 
 }
