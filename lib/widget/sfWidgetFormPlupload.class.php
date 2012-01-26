@@ -148,7 +148,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
       $pluploadOptions[] = sprintf('container: "%s"',$this->getOption('container'));
 
     if ($this->getOption('multipart'))
-      $pluploadOptions[] = sprintf('multipart: "%s"',$this->getOption('multipart'));
+      $pluploadOptions[] = sprintf('multipart: true');
 
     if ($this->getOption('multipart_params'))
       $pluploadOptions[] = sprintf('multipart_params: %s',$this->getOption('multipart_params'));
@@ -181,6 +181,7 @@ class sfWidgetFormPlupload extends sfWidgetForm
       }
     });
     $('form').submit(function(e){
+      e.preventDefault();
       var uploader = $('#uploader').pluploadQueue();
       if (uploader.files.length > 0){
         uploader.bind('StateChanged',function(){
@@ -190,11 +191,12 @@ class sfWidgetFormPlupload extends sfWidgetForm
         });
         uploader.start();
       }
-      elseif(!$('#%id%').val())
+      else if(!$('#%id%').val())
       {
         alert('You must upload at least one file');
+        return false;
       }
-      return false;
+      $('form')[0].submit();
     });
   });
 </script>

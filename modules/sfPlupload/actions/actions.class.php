@@ -17,16 +17,26 @@ class sfPluploadActions extends sfActions
    * @param sfWebRequest $request
    */
   public function executeUpload(sfWebRequest $request)
-  { 
+  {
+    /* @var $response sfWebResponse */
+    $response = $this->getResponse();
+    $response->setHttpHeader('Cache-Control','post-check=0, pre-check=0', false);
+    $response->setHttpHeader('Pragma','no-cache');
+    $response->setContentType('application/json');
+
     set_time_limit(15 * 60);
+    $this->logMessage(sprintf('Time limt set to "%s"',(15*60)), 'debug');
 
     $targetDir = sfConfig::get('sf_upload_dir');
+    $this->logMessage(sprintf('Upload Dir: %s',$targetDir), 'debug');
 
     $chunk = $request->getParameter('chunk', 0);
     $chunks = $request->getParameter('chunks', 0);
     $fileName = $request->getParameter('name','');
-
     $fileName = preg_replace('/[^\w\._]+/', '', $fileName);
+    $this->logMessage(sprintf('Chunk: %s', $chunk), 'debug');
+    $this->logMessage(sprintf('Chunks: %s', $chunks), 'debug');
+    $this->logMessage(sprintf('Filename: %s', $fileName), 'debug');
 
     // Make sure the fileName is unique but only if chunking is disabled
     if($chunks < 2 && file_exists($targetDir . DIRECTORY_SEPARATOR . $fileName))
@@ -42,6 +52,8 @@ class sfPluploadActions extends sfActions
       $fileName = $fileName_a . '_' . $count . $fileName_b;
     }
 
+    $filePath = $targetDir . DIRECTORY_SEPARATOR . $fileName;
+
     // Look for the content type header
     $pathInfo = $request->getPathInfoArray();
     $contentType = '';
@@ -54,20 +66,23 @@ class sfPluploadActions extends sfActions
       $contentType = $pathInfo["HTTP_CONTENT_TYPE"];
     }
 
+    $this->logMessage(sprintf('Content-Type: %s', $contentType), 'debug');
+
     $files = $request->getFiles();
     $files = $files['file'];
+    if (isset($files['error']) && $files['error'])
+    {
+      $this->logMessage(sprintf('sfPluploadError: %s', $files['error']), 'err');
+      return $this->renderText(sprintf('{"jsonrpc": "2.0", "error" : { "message": "%s" }}',$files['error']));
+    }
 
     // Handle non multipart uploads older WebKit versions didn't support multipart in HTML5
     if(strpos($contentType, "multipart") !== false)
     {
-      if (isset($files['error']) && $files['error'])
-      {
-        return $this->renderText(sprintf('{"jsonrpc": "2.0", "error" : { "message": "%s" }}',$files['error']));
-      }
       if(isset($files['tmp_name']) && is_uploaded_file($files['tmp_name']))
       {
         // Open temp file
-        $out = fopen($targetDir . DIRECTORY_SEPARATOR . $fileName, $chunk == 0 ? "wb" : "ab");
+        $out = fopen($filePath . '.part', $chunk == 0 ? "wb" : "ab");
         if($out)
         {
           // Read binary input stream and append it to temp file
@@ -101,7 +116,7 @@ class sfPluploadActions extends sfActions
     else
     {
       // Open temp file
-      $out = fopen($targetDir . DIRECTORY_SEPARATOR . $fileName, $chunk == 0 ? "wb" : "ab");
+      $out = fopen($filePath . '.part', $chunk == 0 ? "wb" : "ab");
       if($out)
       {
         // Read binary input stream and append it to temp file
@@ -126,8 +141,9 @@ class sfPluploadActions extends sfActions
       }
     }
 
-    if ($chunks == ($chunk + 1))
+    if (!$chunks || $chunk == ($chunks - 1))
     {
+      rename($filePath . '.part', $filePath);
       return $this->renderText('{"jsonrpc" : "2.0", "result" : "complete", "id" : "id"}');
     }
 
