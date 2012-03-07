@@ -195,7 +195,10 @@ class sfWidgetFormPlupload extends sfWidgetForm
       {
         alert('You must upload at least one file');
       }
-      $('form')[0].submit();
+      else if($('#%id%').val())
+      {
+        $('form')[0].submit();
+      }
     });
   });
 </script>
