@@ -144,6 +144,7 @@ class sfPluploadActions extends sfActions
     if (!$chunks || $chunk == ($chunks - 1))
     {
       rename($filePath . '.part', $filePath);
+      chmod($filePath,0777);
       return $this->renderText('{"jsonrpc" : "2.0", "result" : "complete", "id" : "id"}');
     }
 
