@@ -27,7 +27,7 @@ class sfPluploadActions extends sfActions
     set_time_limit(15 * 60);
     $this->logMessage(sprintf('Time limt set to "%s"',(15*60)), 'debug');
 
-    $targetDir = sfConfig::get('sf_upload_dir');
+    $targetDir = sfConfig::get('app_sfPluploadPlugin_targetDir') ? sfConfig::get('sf_root_dir').sfConfig::get('app_sfPluploadPlugin_targetDir') : sfConfig::get('sf_upload_dir');
     $this->logMessage(sprintf('Upload Dir: %s',$targetDir), 'debug');
 
     $chunk = $request->getParameter('chunk', 0);
