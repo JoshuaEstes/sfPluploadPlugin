@@ -162,8 +162,10 @@ class sfWidgetFormPlupload extends sfWidgetForm
     $pluploadOptions = implode(",\n",$pluploadOptions);
 
     $template = <<<EOF
+<div id="uploader"><p>You browser doesn't have %used_runtimes% support.</p></div>
+<input type="hidden" name="%name%" value="%value%" id="%id%" />
 <script type="text/javascript">
-  $(function(){
+  jQuery(function($){
     $('#uploader').pluploadQueue({
       %pluploadOptions%,
       init: {
@@ -202,8 +204,6 @@ class sfWidgetFormPlupload extends sfWidgetForm
     });
   });
 </script>
-<div id="uploader"><p>You browser doesn't have %used_runtimes% support.</p></div>
-<input type="hidden" name="%name%" value="%value%" id="%id%" />
 EOF;
     return strtr($template,array(
       '%pluploadOptions%' => $pluploadOptions,
