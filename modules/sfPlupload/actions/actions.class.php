@@ -22,7 +22,8 @@ class sfPluploadActions extends sfActions
     $response = $this->getResponse();
     $response->setHttpHeader('Cache-Control','post-check=0, pre-check=0', false);
     $response->setHttpHeader('Pragma','no-cache');
-    $response->setContentType('application/json');
+//    $response->setContentType('application/json');
+    $response->setContentType('text/html');
 
     set_time_limit(15 * 60);
     $this->logMessage(sprintf('Time limt set to "%s"',(15*60)), 'debug');
